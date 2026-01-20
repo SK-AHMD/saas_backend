@@ -2,11 +2,13 @@
 const router = require('express').Router();
 const bcrypt = require('bcrypt');
 const jwtGenerator = require('../utils/jwt_generator');
+const validInfo = require("../middlewares/validinfo");
+const autorization = require("../middlewares/authorization");
 // const router = express.Router();
 const pool = require('../db');
 //registering
 
-router.post('/register', async (req, res) => {
+router.post('/register', validInfo, async (req, res) => {
     try {
         // 1. destructure the req body (name,email,passwd)
         const { name, email, password } = req.body;
@@ -39,7 +41,7 @@ router.post('/register', async (req, res) => {
 });
 
 
-router.post('/login', async (req, res) => {
+router.post('/login', validInfo, async (req, res) => {
     try {
         const { email, password } = req.body;
 
@@ -51,7 +53,7 @@ router.post('/login', async (req, res) => {
 
         await bcrypt.compare(password, user.rows[0].user_password).then(function (result) {
             if (!result) {
-                res.status(401).json("password or email is incorrect");
+                return res.status(401).json("password or email is incorrect");
             }
 
         });
@@ -59,6 +61,18 @@ router.post('/login', async (req, res) => {
         const token = jwtGenerator(user.rows[0].user_id);
 
         res.send({ token });
+
+    } catch (err) {
+        console.error(err.message);
+
+        res.status(500).send({ message: "Internal Server Error" })
+    }
+});
+
+router.get("/is-verify", autorization, async (req, res) => {
+    try {
+
+        res.json(true);
 
     } catch (err) {
         console.error(err.message);

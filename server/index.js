@@ -5,7 +5,6 @@ const PORT = 8000;
 
 const cors = require('cors');
 const pool = require('./db');
-
 // connect to database
 
 pool.connect().then(() => {
@@ -26,6 +25,10 @@ app.use(cors()); // so that our backend can interact with our frontend
 
 app.use('/auth', require("./routes/jwtauth"));
 
+
+// dashboard route
+
+app.use('/dashboard', require('./routes/dashboard'))
 
 
 
